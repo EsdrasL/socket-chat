@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Socket.IO Chat</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font: 13px Helvetica, Arial; }
+            form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+            form #name { border: 0; padding: 10px; width: 10%; }
+            form #m { border: 0; padding: 10px; width: 80%; margin-right: .5%; }
+            form button { width: 9%; background: rgb(130, 224, 225); border: none; padding: 10px; }
+            #messages { list-style-type: none; margin: 0; padding: 0; }
+            #messages li { padding: 5px 10px; }
+            #messages li:nth-child(odd) { background: #eee; }
+        </style>
+    </head>
+    <body>
+        <ul id="messages"></ul>
+        <form action="">
+            <input id="name" placeholder="Your name" autocomplete="off">
+            <input id="m" placeholder="Your message" autocomplete="off"><button>Send</button>
+        </form>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script>
+            $(function() {
+                const socket = io();
+                $('form').submit(function() {
+                    const name = $('#name').val();
+                    const message = $('#m').val();
+                    socket.emit('chat message', name, message);
+                    $('#messages').append($('<li>').text(name + ': ' + message));
+                    $('#m').val('');
+                    return false;
+                });
+
+                socket.on('connected', msg => {
+                    $('#messages').append($('<li>').text(msg));
+                });
+
+                socket.on('chat message', (name, msg) => {
+                    $('#messages').append($('<li>').text(name + ': ' + msg));
+                });
+
+                socket.on('disconnected', msg => {
+                    $('#messages').append($('<li>').text(msg));
+                });
+            });  
+        </script>
+    </body>
+</html>
